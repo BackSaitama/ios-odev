@@ -26,35 +26,42 @@ jobs:
           brew install xcodegen
           xcodegen generate
 
-      - name: Derle (simülatör)
-        run: |
-          xcodebuild -project KaydirSil.xcodeproj -scheme KaydirSil -configuration Debug \
-            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build
-
-      - name: Simülatörde çalıştır ve ekran görüntüsü al
+      - name: Simülatörü hazırla
         run: |
           UDID=$(xcrun simctl list devices available -j | python3 -c "
           import json, sys
           d = json.load(sys.stdin)['devices']
           print(next(x['udid'] for k, v in sorted(d.items(), reverse=True) if 'iOS' in k for x in v if x['name'].startswith('iPhone')))
           ")
-          echo "Simülatör: $UDID"
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl addmedia "$UDID" ornek-fotolar/*.jpg
-          xcrun simctl install "$UDID" build/Build/Products/Debug-iphonesimulator/KaydirSil.app
-          xcrun simctl privacy "$UDID" grant photos com.kuzeykilinc.kaydirsil
+
+      - name: Derle ve kullanıcı testini çalıştır
+        run: |
+          xcodebuild -project KaydirSil.xcodeproj -scheme KaydirSil \
+            -destination "id=$UDID" -resultBundlePath sonuc.xcresult \
+            CODE_SIGNING_ALLOWED=NO -quiet test
+
+      - name: Ekran görüntülerini çıkar
+        if: always()
+        run: |
           mkdir -p "$GITHUB_WORKSPACE/ekran"
-
-          xcrun simctl launch "$UDID" com.kuzeykilinc.kaydirsil
-          sleep 10
-          xcrun simctl io "$UDID" screenshot "$GITHUB_WORKSPACE/ekran/1-ana-ekran.png"
-          xcrun simctl terminate "$UDID" com.kuzeykilinc.kaydirsil
-
-          xcrun simctl launch "$UDID" com.kuzeykilinc.kaydirsil -otomatikBasla
-          sleep 10
-          xcrun simctl io "$UDID" screenshot "$GITHUB_WORKSPACE/ekran/2-kaydirma.png"
+          xcrun xcresulttool export attachments --path sonuc.xcresult --output-path ham || exit 0
+          python3 - <<'EOF'
+          import json, os, shutil
+          liste = json.load(open("ham/manifest.json"))
+          for test in liste:
+              for ek in test.get("attachments", []):
+                  ad = ek.get("suggestedHumanReadableName") or ek["exportedFileName"]
+                  ad = ad.split("_0_")[0]
+                  if not ad.endswith(".png"):
+                      ad += ".png"
+                  shutil.copy(os.path.join("ham", ek["exportedFileName"]),
+                              os.path.join(os.environ["GITHUB_WORKSPACE"], "ekran", ad))
+          EOF
+          ls "$GITHUB_WORKSPACE/ekran"
 
       - uses: actions/upload-artifact@v4
         if: always()

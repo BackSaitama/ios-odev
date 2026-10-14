@@ -9,7 +9,28 @@ settings:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "1.0"
     CURRENT_PROJECT_VERSION: "1"
+schemes:
+  KaydirSil:
+    build:
+      targets:
+        KaydirSil: all
+        KaydirSilUITests: [test]
+    test:
+      targets:
+        - KaydirSilUITests
 targets:
+  KaydirSilUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: KaydirSilUITests
+    dependencies:
+      - target: KaydirSil
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kuzeykilinc.kaydirsil.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
   KaydirSil:
     type: application
     platform: iOS
