@@ -1,0 +1,35 @@
+name: KaydirSil
+options:
+  bundleIdPrefix: com.kuzeykilinc
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: tr
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  KaydirSil:
+    type: application
+    platform: iOS
+    sources:
+      - path: KaydirSil
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kuzeykilinc.kaydirsil
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+    info:
+      path: KaydirSil/Info.plist
+      properties:
+        CFBundleDisplayName: Kaydır Sil
+        CFBundleDevelopmentRegion: tr
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSPhotoLibraryUsageDescription: Kaydır Sil, galerindeki fotoğrafları tek tek gösterip istemediklerini silmene yardım etmek için fotoğraf arşivine erişir. Fotoğrafların telefonundan hiçbir yere gönderilmez.
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false

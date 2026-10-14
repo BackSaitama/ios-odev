@@ -1,0 +1,64 @@
+name: Kaydır Sil
+
+on:
+  push:
+    paths:
+      - "KaydirSil/**"
+      - ".github/workflows/kaydirsil.yml"
+  workflow_dispatch:
+
+jobs:
+  derle:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: KaydirSil
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Xcode projesini oluştur
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Derle (simülatör)
+        run: |
+          xcodebuild -project KaydirSil.xcodeproj -scheme KaydirSil -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build
+
+      - name: Simülatörde çalıştır ve ekran görüntüsü al
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          print(next(x['udid'] for k, v in sorted(d.items(), reverse=True) if 'iOS' in k for x in v if x['name'].startswith('iPhone')))
+          ")
+          echo "Simülatör: $UDID"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl addmedia "$UDID" ornek-fotolar/*.jpg
+          xcrun simctl install "$UDID" build/Build/Products/Debug-iphonesimulator/KaydirSil.app
+          xcrun simctl privacy "$UDID" grant photos com.kuzeykilinc.kaydirsil
+          mkdir -p "$GITHUB_WORKSPACE/ekran"
+
+          xcrun simctl launch "$UDID" com.kuzeykilinc.kaydirsil
+          sleep 10
+          xcrun simctl io "$UDID" screenshot "$GITHUB_WORKSPACE/ekran/1-ana-ekran.png"
+          xcrun simctl terminate "$UDID" com.kuzeykilinc.kaydirsil
+
+          xcrun simctl launch "$UDID" com.kuzeykilinc.kaydirsil -otomatikBasla
+          sleep 10
+          xcrun simctl io "$UDID" screenshot "$GITHUB_WORKSPACE/ekran/2-kaydirma.png"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kaydirsil-ekran-goruntuleri
+          path: ekran/
+          if-no-files-found: ignore
