@@ -1,0 +1,55 @@
+name: AbonelikBekcisi
+options:
+  bundleIdPrefix: com.kuzeykilinc
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: tr
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+schemes:
+  AbonelikBekcisi:
+    build:
+      targets:
+        AbonelikBekcisi: all
+        AbonelikBekcisiUITests: [test]
+    test:
+      targets:
+        - AbonelikBekcisiUITests
+targets:
+  AbonelikBekcisiUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: AbonelikBekcisiUITests
+    dependencies:
+      - target: AbonelikBekcisi
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kuzeykilinc.abonelikbekcisi.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
+  AbonelikBekcisi:
+    type: application
+    platform: iOS
+    sources:
+      - path: AbonelikBekcisi
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kuzeykilinc.abonelikbekcisi
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+    info:
+      path: AbonelikBekcisi/Info.plist
+      properties:
+        CFBundleDisplayName: Abonelik Bekçisi
+        CFBundleDevelopmentRegion: tr
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
