@@ -145,12 +145,13 @@ private struct BuyukKart: View {
     }
 
     private var kalanSaat: some View {
-        let saniye = max(0, Int(e.hedef.timeIntervalSinceNow))
-        let saat = (saniye % 86400) / 3600
-        let dakika = (saniye % 3600) / 60
+        // Etkinlik gününün başlangıcına (gece 00:00) tam olarak kalan süre.
+        let baslangic = Calendar.current.startOfDay(for: e.hedef)
+        let saniye = max(0, Int(baslangic.timeIntervalSinceNow))
         return HStack(spacing: 8) {
-            Parca(sayi: saat, ad: "saat")
-            Parca(sayi: dakika, ad: "dakika")
+            Parca(sayi: saniye / 86400, ad: "gün")
+            Parca(sayi: (saniye % 86400) / 3600, ad: "saat")
+            Parca(sayi: (saniye % 3600) / 60, ad: "dakika")
         }
     }
 
