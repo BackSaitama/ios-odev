@@ -46,6 +46,7 @@ struct IzinEkrani: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             VStack(alignment: .leading, spacing: 14) {
                 Satir(ikon: "arrow.left", renk: Tema.silRengi, metin: "Sola kaydır: sil")
