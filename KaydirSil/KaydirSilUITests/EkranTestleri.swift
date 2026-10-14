@@ -9,6 +9,7 @@ final class EkranTestleri: XCTestCase {
     }
 
     func testAkis() throws {
+        app.launchArguments = ["-UITest"]
         app.launch()
         cek("1-karsilama")
 

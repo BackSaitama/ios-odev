@@ -76,7 +76,17 @@ struct IzinEkrani: View {
     private struct OrnekKartlar: View {
         private let renkler: [[Color]] = [[.orange, .pink], [.teal, .blue], [.green, .mint], [.purple, .indigo]]
 
+        private let testModu = ProcessInfo.processInfo.arguments.contains("-UITest")
+
         var body: some View {
+            if testModu {
+                deste(0)
+            } else {
+                canli
+            }
+        }
+
+        private var canli: some View {
             TimelineView(.periodic(from: .now, by: 1.6)) { zaman in
                 let t = Int(zaman.date.timeIntervalSinceReferenceDate / 1.6)
                 ZStack {
