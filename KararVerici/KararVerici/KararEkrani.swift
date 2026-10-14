@@ -139,7 +139,6 @@ private struct SonucKarti: View {
         ZStack {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(bitti ? AnyShapeStyle(Tema.anaGradyan) : AnyShapeStyle(Color(.secondarySystemGroupedBackground)))
-                .shadow(color: bitti ? Tema.vurgu.opacity(0.45) : .black.opacity(0.08), radius: bitti ? 22 : 10, y: 8)
 
             if let metin {
                 VStack(spacing: 8) {
@@ -169,8 +168,9 @@ private struct SonucKarti: View {
             }
         }
         .frame(height: 220)
+        .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+        .shadow(color: bitti ? Tema.vurgu.opacity(0.45) : .black.opacity(0.08), radius: bitti ? 22 : 10, y: 8)
         .scaleEffect(bitti ? 1.03 : 1)
-        .clipped()
     }
 }
 
