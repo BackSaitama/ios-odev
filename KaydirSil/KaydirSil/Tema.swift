@@ -43,7 +43,7 @@ struct IlerlemeHalkasi: View {
         ZStack {
             Circle().stroke(.white.opacity(0.25), lineWidth: kalinlik)
             Circle()
-                .trim(from: 0, to: max(0.001, deger))
+                .trim(from: 0, to: deger)
                 .stroke(.white, style: StrokeStyle(lineWidth: kalinlik, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 0) {

@@ -36,11 +36,12 @@ struct IzinEkrani: View {
         VStack(spacing: 28) {
             Spacer(minLength: 10)
             OrnekKartlar()
-                .frame(height: 300)
+                .frame(height: 280)
             VStack(spacing: 10) {
                 Text("Galerini kaydırarak\ntemizle")
                     .font(.system(.largeTitle, design: .rounded).weight(.heavy))
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("Günde bir dakika, binlerce gereksiz fotoğraf daha az.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -133,6 +134,7 @@ struct IzinEkrani: View {
                     .foregroundStyle(renk)
                     .frame(width: 30)
                 Text(metin)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

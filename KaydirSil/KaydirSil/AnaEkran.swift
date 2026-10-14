@@ -165,16 +165,14 @@ private struct HizliKutu: View {
                         LinearGradient(colors: renkler, startPoint: .topLeading, endPoint: .bottomTrailing),
                         in: RoundedRectangle(cornerRadius: 13, style: .continuous)
                     )
-                Spacer(minLength: 0)
+                Spacer(minLength: 8)
                 Text("\(sayi)")
                     .font(.system(.title2, design: .rounded).weight(.heavy))
                     .contentTransition(.numericText())
                 Text(baslik)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(2, reservesSpace: true)
             }
             .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
             .padding(14)
@@ -280,18 +278,15 @@ struct CopDugmesi: View {
 
     var body: some View {
         Button(action: eylem) {
-            Image(systemName: depo.copSayisi > 0 ? "trash.fill" : "trash")
-                .overlay(alignment: .topTrailing) {
-                    if depo.copSayisi > 0 {
-                        Text("\(depo.copSayisi)")
-                            .font(.caption2.bold())
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(Tema.silRengi, in: Capsule())
-                            .offset(x: 12, y: -10)
-                    }
+            HStack(spacing: 4) {
+                Image(systemName: depo.copSayisi > 0 ? "trash.fill" : "trash")
+                if depo.copSayisi > 0 {
+                    Text("\(depo.copSayisi)")
+                        .font(.subheadline.weight(.bold).monospacedDigit())
+                        .contentTransition(.numericText())
                 }
+            }
+            .foregroundStyle(depo.copSayisi > 0 ? Tema.silRengi : Color.accentColor)
         }
         .accessibilityLabel("Çöp kutusu, \(depo.copSayisi) öğe")
     }
