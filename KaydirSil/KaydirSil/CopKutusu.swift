@@ -8,7 +8,7 @@ struct CopKutusu: View {
     @State private var acilan: Int64?
     @State private var hata = false
 
-    private let sutunlar = [GridItem(.adaptive(minimum: 104), spacing: 4)]
+    private let sutunlar = [GridItem(.adaptive(minimum: 104), spacing: 8)]
 
     var body: some View {
         NavigationStack {
@@ -20,33 +20,22 @@ struct CopKutusu: View {
                                            description: Text("Sola kaydırdığın fotoğraflar burada birikir."))
                 } else {
                     ScrollView {
-                        Text("Yanlışlıkla eklediğine dokun, geri çıksın.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 8)
-                        LazyVGrid(columns: sutunlar, spacing: 4) {
-                            ForEach(varliklar, id: \.localIdentifier) { varlik in
-                                Button {
-                                    withAnimation { depo.kurtar(varlik.localIdentifier) }
-                                } label: {
-                                    VarlikGorseli(varlik: varlik, boyut: CGSize(width: 110, height: 110))
-                                        .frame(minWidth: 0, maxWidth: .infinity)
-                                        .frame(height: 110)
-                                        .clipped()
-                                        .overlay(alignment: .bottomTrailing) {
-                                            if varlik.mediaType == .video {
-                                                Image(systemName: "video.fill")
-                                                    .font(.caption)
-                                                    .foregroundStyle(.white)
-                                                    .padding(6)
-                                            }
+                        VStack(spacing: 16) {
+                            OzetSeridi(sayi: varliklar.count, boyut: depo.copBoyutu)
+                            LazyVGrid(columns: sutunlar, spacing: 8) {
+                                ForEach(varliklar, id: \.localIdentifier) { varlik in
+                                    CopHucresi(varlik: varlik) {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            depo.kurtar(varlik.localIdentifier)
                                         }
+                                    }
+                                    .transition(.scale.combined(with: .opacity))
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
-                        .padding(.horizontal, 4)
+                        .padding(16)
                     }
+                    .background(Color(.systemGroupedBackground))
                     .safeAreaInset(edge: .bottom) { silmeCubugu(sayi: varliklar.count) }
                 }
             }
@@ -71,29 +60,105 @@ struct CopKutusu: View {
     }
 
     private func silmeCubugu(sayi: Int) -> some View {
-        VStack(spacing: 6) {
-            Button(role: .destructive) {
-                Task {
-                    siliniyor = true
-                    let sonuc = await depo.copuBosalt()
-                    siliniyor = false
-                    if let sonuc { acilan = sonuc } else { hata = true }
-                }
-            } label: {
-                HStack {
-                    if siliniyor { ProgressView().tint(.white) }
-                    Text("\(sayi) öğeyi sil · \(depo.copBoyutu.okunur)")
-                        .font(.headline)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
+        Button(role: .destructive) {
+            Task {
+                siliniyor = true
+                let sonuc = await depo.copuBosalt()
+                siliniyor = false
+                if let sonuc { acilan = sonuc } else { hata = true }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.red)
-            .controlSize(.large)
-            .disabled(siliniyor)
+        } label: {
+            HStack(spacing: 10) {
+                if siliniyor {
+                    ProgressView().tint(.white)
+                } else {
+                    Image(systemName: "trash.fill")
+                }
+                Text("\(sayi) öğeyi sil")
+            }
+            .font(.headline)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .background(
+                LinearGradient(colors: [Tema.silRengi, Color(red: 0.9, green: 0.15, blue: 0.4)],
+                               startPoint: .leading, endPoint: .trailing),
+                in: Capsule()
+            )
+            .shadow(color: Tema.silRengi.opacity(0.4), radius: 14, y: 6)
         }
-        .padding()
+        .buttonStyle(BasmaStili())
+        .disabled(siliniyor)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 10)
         .background(.bar)
+    }
+}
+
+private struct OzetSeridi: View {
+    let sayi: Int
+    let boyut: Int64
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "externaldrive.fill.badge.minus")
+                .font(.title2)
+                .foregroundStyle(.white)
+                .frame(width: 52, height: 52)
+                .background(Tema.anaGradyan, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(boyut.okunur) açılacak")
+                    .font(.system(.title3, design: .rounded).weight(.heavy))
+                    .contentTransition(.numericText())
+                Text("Yanlışlıkla eklediğin olursa üstüne dokun, geri çıksın.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(14)
+        .kartYuzeyi(kose: 20)
+    }
+}
+
+private struct CopHucresi: View {
+    let varlik: PHAsset
+    let kurtar: () -> Void
+    @Environment(FotoDeposu.self) private var depo
+
+    var body: some View {
+        Button(action: kurtar) {
+            Color.clear
+                .aspectRatio(1, contentMode: .fit)
+                .overlay {
+                    GeometryReader { geo in
+                        VarlikGorseli(varlik: varlik, boyut: geo.size)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    }
+                }
+                .overlay(alignment: .bottomLeading) {
+                    HStack(spacing: 4) {
+                        if varlik.mediaType == .video { Image(systemName: "video.fill") }
+                        Text(depo.boyut(varlik).okunur)
+                    }
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 4)
+                    .background(.black.opacity(0.45), in: Capsule())
+                    .padding(6)
+                }
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "arrow.uturn.backward.circle.fill")
+                        .font(.title3)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, .black.opacity(0.35))
+                        .padding(6)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(BasmaStili())
+        .accessibilityLabel("Geri çıkar")
     }
 }

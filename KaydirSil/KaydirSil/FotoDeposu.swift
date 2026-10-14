@@ -127,11 +127,29 @@ final class FotoDeposu {
         return ay.kimlikler.reduce(0) { $0 + ((kayit.tutulanlar.contains($1) || cop.contains($1)) ? 1 : 0) }
     }
 
+    /// Tüm galerinin ne kadarına bakıldı (0...1).
+    var galeriIlerlemesi: Double {
+        guard toplamSayi > 0 else { return 0 }
+        return min(1, Double(kayit.tutulanlar.count + kayit.copKutusu.count) / Double(toplamSayi))
+    }
+
+    @ObservationIgnored private var varlikOnbellegi: [String: PHAsset] = [:]
+
+    func varlik(_ kimlik: String) -> PHAsset? {
+        if let v = varlikOnbellegi[kimlik] { return v }
+        let v = PHAsset.fetchAssets(withLocalIdentifiers: [kimlik], options: nil).firstObject
+        varlikOnbellegi[kimlik] = v
+        return v
+    }
+
     // MARK: - Kaydırma
 
     var simdiki: PHAsset? { siradaki < kuyruk.count ? kuyruk[siradaki] : nil }
     var sonraki: PHAsset? { siradaki + 1 < kuyruk.count ? kuyruk[siradaki + 1] : nil }
+    var ucuncu: PHAsset? { siradaki + 2 < kuyruk.count ? kuyruk[siradaki + 2] : nil }
     var geriAlinabilir: Bool { !gecmis.isEmpty }
+    var oturumSilinen: Int { gecmis.filter { $0.karar == .sil }.count }
+    var oturumTutulan: Int { gecmis.filter { $0.karar == .tut }.count }
 
     func baslat(_ kaynak: Kaynak) async {
         yukleniyor = true
