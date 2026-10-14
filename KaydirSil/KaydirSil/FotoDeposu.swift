@@ -315,5 +315,10 @@ enum Gorsel {
 }
 
 extension Int64 {
-    var okunur: String { ByteCountFormatter.string(fromByteCount: self, countStyle: .file) }
+    var okunur: String {
+        let bicim = ByteCountFormatter()
+        bicim.countStyle = .file
+        bicim.allowsNonnumericFormatting = false
+        return bicim.string(fromByteCount: self)
+    }
 }
