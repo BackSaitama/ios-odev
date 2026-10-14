@@ -19,7 +19,7 @@ final class EkranTestleri: XCTestCase {
             izinVer()
         }
 
-        let karisik = app.buttons.containing(NSPredicate(format: "label CONTAINS 'Karışık'")).firstMatch
+        let karisik = app.buttons.matching(NSPredicate(format: "label CONTAINS 'Karışık'")).firstMatch
         XCTAssertTrue(karisik.waitForExistence(timeout: 15), "Ana ekran açılmadı")
         sleep(2)
         cek("2-ana-ekran")
